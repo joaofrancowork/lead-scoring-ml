@@ -84,6 +84,12 @@ def test_drift_report_flags_shifted_columns(contacts: pd.DataFrame) -> None:
     assert "| euribor3m |" in report.to_markdown() and "stable" in report.to_markdown()
 
 
+def test_low_cardinality_numeric_shift_is_not_hidden() -> None:
+    ref = pd.DataFrame({"pdays": [999] * 95 + [3] * 5})
+    cur = pd.DataFrame({"pdays": [999] * 60 + [3] * 40})
+    assert drift_report(ref, cur, ["pdays"]).alerts == ["pdays"]
+
+
 def test_cli_train_and_drift(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:

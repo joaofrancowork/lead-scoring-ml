@@ -16,6 +16,7 @@ import numpy as np
 import pandas as pd
 
 WATCH, ALERT = 0.1, 0.25
+MAX_DISCRETE_VALUES = 30
 EPS = 1e-4
 
 
@@ -65,7 +66,10 @@ class DriftReport:
 def drift_report(reference: pd.DataFrame, current: pd.DataFrame, columns: list[str]) -> DriftReport:
     scores = {}
     for column in columns:
-        if pd.api.types.is_numeric_dtype(reference[column]):
+        # Low-cardinality numerics (pdays = 999 for most rows, previous = 0..7) collapse
+        # quantile bins into one, which hides real shifts; compare them as categories.
+        is_discrete = reference[column].nunique() <= MAX_DISCRETE_VALUES
+        if pd.api.types.is_numeric_dtype(reference[column]) and not is_discrete:
             scores[column] = psi_numeric(reference[column], current[column])
         else:
             scores[column] = psi_categorical(reference[column], current[column])
