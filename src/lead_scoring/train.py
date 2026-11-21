@@ -112,6 +112,13 @@ def _calibration_plot(y: pd.Series, scores: np.ndarray[Any, Any], path: Path) ->
     return path
 
 
+def _ensure_tracking() -> None:
+    if not os.getenv("MLFLOW_TRACKING_URI"):
+        # Local SQLite store by default: no tracking server needed to reproduce a run.
+        mlflow.set_tracking_uri(f"sqlite:///{Path.cwd() / 'mlflow.db'}")
+    mlflow.set_experiment(EXPERIMENT)
+
+
 def train(
     train_df: pd.DataFrame,
     val_df: pd.DataFrame,
@@ -121,10 +128,7 @@ def train(
     fast: bool = False,
     feature_set: str = "all",
 ) -> TrainResult:
-    if not os.getenv("MLFLOW_TRACKING_URI"):
-        # Local SQLite store by default: no tracking server needed to reproduce a run.
-        mlflow.set_tracking_uri("sqlite:///mlflow.db")
-    mlflow.set_experiment(EXPERIMENT)
+    _ensure_tracking()
     columns = input_columns(feature_set)
     X_train, y_train = train_df[columns], train_df[TARGET]
     X_val, y_val = val_df[columns], val_df[TARGET]

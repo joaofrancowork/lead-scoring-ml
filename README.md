@@ -92,9 +92,21 @@ latest contacts using the Population Stability Index. Every macro feature scores
 `job`. In production, this is the signal to retrain on a recent window and recalibrate, rather
 than to trust last quarter's offline AUC.
 
+**A single split is not enough either.** `lead-scoring backtest` trains on everything before
+each cut-off and scores the next period, five times in a row:
+
+| Model | ROC-AUC | PR-AUC | Lift@10% | Base rate (mean) |
+|---|---|---|---|---|
+| logistic_regression | 0.571 ± 0.103 | 0.253 ± 0.226 | 1.59 ± 0.50 | 17.9% |
+| hist_gradient_boosting | 0.561 ± 0.115 | 0.249 ± 0.224 | 1.59 ± 0.78 | 17.9% |
+| prior_baseline | 0.500 ± 0.000 | 0.179 ± 0.161 | 1.00 ± 0.00 | 17.9% |
+
+With all features the mean drops to 0.53 ROC-AUC with a wider spread, so the `client` set is
+the better choice on average. The ± column is the point: period-to-period variation is as large
+as the difference between models.
+
 **What I would ship.** The `client` feature set, retrained on a rolling recent window,
-recalibrated to the latest conversion rate, with the drift check as a scheduled job. Turning
-that into a rolling-origin backtest is the next issue.
+recalibrated to the latest conversion rate, with the drift check as a scheduled job.
 
 ## API
 
@@ -123,7 +135,7 @@ curl -s localhost:8000/score -H 'content-type: application/json' -d '{"leads": [
 
 ## Roadmap
 
-- [ ] Rolling-origin backtest (expanding window) instead of a single time split
+- [x] Rolling-origin backtest (expanding window) instead of a single time split
 - [ ] Prior-shift correction: recalibrate to the latest observed conversion rate
 - [ ] Scheduled drift job with a retraining trigger
 - [ ] SHAP explanations per lead in the API response

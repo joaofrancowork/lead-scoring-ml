@@ -11,6 +11,27 @@ UCI Bank Marketing, `bank-additional-full`, 41,188 contacts, call duration exclu
 | time | all | logistic_regression | 0.561 | 0.436 | 38.5% | 1.23x | 12% | 0.295 |
 | time | client | hist_gradient_boosting | 0.589 | 0.443 | 38.5% | 1.21x | 12% | 0.289 |
 
+## Rolling-origin backtest (`lead-scoring backtest`)
+
+Expanding window: train on everything before the cut-off, score the next block; 5 consecutive
+blocks covering the second half of the data. Mean ± standard deviation across folds.
+
+**client features**
+
+| Model | ROC-AUC | PR-AUC | Lift@10% | Base rate (mean) |
+|---|---|---|---|---|
+| logistic_regression | 0.571 ± 0.103 | 0.253 ± 0.226 | 1.59 ± 0.50 | 17.9% |
+| hist_gradient_boosting | 0.561 ± 0.115 | 0.249 ± 0.224 | 1.59 ± 0.78 | 17.9% |
+| prior_baseline | 0.500 ± 0.000 | 0.179 ± 0.161 | 1.00 ± 0.00 | 17.9% |
+
+**all features**
+
+| Model | ROC-AUC | PR-AUC | Lift@10% | Base rate (mean) |
+|---|---|---|---|---|
+| logistic_regression | 0.532 ± 0.163 | 0.240 ± 0.204 | 1.41 ± 0.89 | 17.9% |
+| hist_gradient_boosting | 0.535 ± 0.095 | 0.223 ± 0.220 | 1.21 ± 0.50 | 17.9% |
+| prior_baseline | 0.500 ± 0.000 | 0.179 ± 0.161 | 1.00 ± 0.00 | 17.9% |
+
 ## Drift between the training period and the test period (`lead-scoring drift`)
 
 | Feature | PSI | Status |

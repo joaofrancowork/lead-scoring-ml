@@ -83,6 +83,8 @@ def test_ranking_metrics() -> None:
     assert lift_at(y, perfect, 0.2) == pytest.approx(5.0)
     assert capture_at(y, perfect, 0.2) == 1.0
     assert lift_at(np.zeros(4), np.ones(4)) == 0.0 and capture_at(np.zeros(4), np.ones(4)) == 0.0
+    constant = np.full(len(y), 0.3)
+    assert lift_at(y, constant, 0.2) == 1.0 and capture_at(y, constant, 0.2) == 0.2
     metrics = evaluate(y, perfect)
     assert metrics["roc_auc"] == 1.0 and metrics["pr_auc"] == 1.0
     assert metrics["base_rate"] == pytest.approx(0.2)
