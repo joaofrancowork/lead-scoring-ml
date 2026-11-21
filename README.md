@@ -104,7 +104,7 @@ curl -s localhost:8000/score -H 'content-type: application/json' -d '{"leads": [
   "housing": "no", "loan": "no", "contact": "cellular", "month": "nov", "day_of_week": "tue",
   "campaign": 1, "pdays": 3, "previous": 1, "poutcome": "success", "emp_var_rate": -1.8,
   "cons_price_idx": 92.9, "cons_conf_idx": -46.2, "euribor3m": 1.3, "nr_employed": 5099.1}]}'
-# {"model":"hist_gradient_boosting","scores":[{"probability":0.61,"priority":"call_first"}]}
+# {"model":"hist_gradient_boosting","scores":[{"probability":0.5,"priority":"call_first"}]}   (default model: time split, client features)
 ```
 
 `priority` maps the calibrated probability to the top 10% (`call_first`), the next 20%
