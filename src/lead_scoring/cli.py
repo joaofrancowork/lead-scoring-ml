@@ -24,6 +24,11 @@ def main(argv: list[str] | None = None) -> int:
     dr = sub.add_parser("drift", help="PSI drift report: training period vs the latest contacts")
     dr.add_argument("--data", type=Path, default=DEFAULT_PATH)
     dr.add_argument("--features", choices=["all", "client"], default="all")
+    bt = sub.add_parser("backtest", help="Rolling-origin backtest across consecutive periods")
+    bt.add_argument("--data", type=Path, default=DEFAULT_PATH)
+    bt.add_argument("--features", choices=["all", "client"], default="client")
+    bt.add_argument("--folds", type=int, default=5)
+    bt.add_argument("--fast", action="store_true")
     sv = sub.add_parser("serve", help="Run the scoring API")
     sv.add_argument("--port", type=int, default=8000)
     args = parser.parse_args(argv)
@@ -48,6 +53,15 @@ def main(argv: list[str] | None = None) -> int:
         report = drift_report(train_df, test_df, input_columns(args.features))
         print(report.to_markdown())
         print(f"\nalerts: {', '.join(report.alerts) or 'none'}")
+        return 0
+
+    if args.command == "backtest":
+        from lead_scoring.backtest import backtest, to_markdown
+
+        results = backtest(
+            load(download(args.data)), args.features, n_folds=args.folds, fast=args.fast
+        )
+        print(to_markdown(results))
         return 0
 
     from lead_scoring.train import train

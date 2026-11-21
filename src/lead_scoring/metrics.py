@@ -28,12 +28,16 @@ def lift_at(y: npt.ArrayLike, scores: FloatArray, fraction: float = 0.1) -> floa
     base_rate = y_arr.mean()
     if base_rate == 0:
         return 0.0
+    if np.ptp(scores) == 0:
+        return 1.0  # a constant score is a random ordering: no lift by definition
     return float(y_arr[top_fraction_mask(scores, fraction)].mean() / base_rate)
 
 
 def capture_at(y: npt.ArrayLike, scores: FloatArray, fraction: float = 0.1) -> float:
     y_arr = np.asarray(y, dtype=np.float64)
     total = float(y_arr.sum())
+    if total and np.ptp(scores) == 0:
+        return fraction  # random ordering captures its share of positives
     return float(y_arr[top_fraction_mask(scores, fraction)].sum()) / total if total else 0.0
 
 
